@@ -1,67 +1,100 @@
-import React from 'react';
-import styles from './mainPage.module.css';
+import React, { useState } from 'react';
+import { Breadcrumb, Button, Layout, Menu, MenuProps, theme } from 'antd';
+import { AiOutlineUser, AiOutlineMenuFold, AiOutlineMenuUnfold, AiOutlineLeft, AiOutlineRight } from 'react-icons/ai'
+import { GiClothes } from 'react-icons/gi';
+import { TiWeatherPartlySunny } from 'react-icons/ti';
+
+const { Header, Content, Footer, Sider } = Layout;
+
+type MenuItem = Required<MenuProps>['items'][number];
+
+function getItem(
+    label: React.ReactNode,
+    key: React.Key,
+    icon?: React.ReactNode,
+    children?: MenuItem[],
+    type?: 'group',
+): MenuItem {
+    return {
+        key,
+        icon,
+        children,
+        label,
+        type,
+    } as MenuItem;
+}
+
+const items: MenuItem[] = [
+    getItem('Weather', '1', <TiWeatherPartlySunny />),
+    getItem('Outfit', '2', <GiClothes />),
+    getItem('User', 'sub1', <AiOutlineUser />, [
+        getItem('Settings', 'sub1-1'),
+        getItem('Calendar', 'sub1-2'),
+    ]),
+];
 
 export default function MainPage() {
+    const [isHide, setIsHide] = useState<boolean>(true)
+    const [isClose, setIsClose] = useState(true);
+    // const [menuKey, setMenuKey] = useState<>()
+
+    const {
+        token: { colorBgContainer },
+    } = theme.useToken();
+
+    const handleSiderHide = () => {
+        if (isHide) {
+            setIsHide(false)
+        } else {
+            setIsHide(true)
+        }
+    }
+
+    const handleSiderOpen = () => {
+        if (isClose) {
+            setIsClose(false)
+        } else {
+            setIsClose(true)
+        }
+    }
+
+    const handleMenuSelect = (menu: any) => {
+        const key = menu?.key
+        if (key.includes('sub')) {
+            console.log(key);
+            console.log('menu: ', menu);
+            console.log(items.map((_item) => console.log(_item)));
+            const item = items.find((_item) => _item && _item.key === key)
+            console.log('item: ', item);
+        }
+    }
+
     return (
-        <div className="MainPage">
-            <header className="header">
-                <nav className={`${styles.Header}`}>
-                    <a className="navbar-brand" href="/">My Website</a>
-                    <ul className="navbar-nav">
-                        <li className="nav-item">
-                            <a className="nav-link" href="/">Home</a>
-                        </li>
-                        <li className="nav-item">
-                            <a className="nav-link" href="/about">About</a>
-                        </li>
-                        <li className="nav-item">
-                            <a className="nav-link" href="/contact">Contact</a>
-                        </li>
-                    </ul>
-                </nav>
-            </header>
-            <main className="main">
-                <section className="hero">
-                    <div className="container">
-                        <h1 className="hero-title">Welcome to My Website</h1>
-                        <p className="hero-description">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse euismod, libero vel ullamcorper commodo, dui leo iaculis lorem, ut lobortis velit velit quis ex.</p>
-                        <a href="/about" className="btn btn-primary">Learn More</a>
-                    </div>
-                </section>
-                <section className="features">
-                    <div className="container">
-                        <h2 className="features-title">Our Features</h2>
-                        <div className="row">
-                            <div className="col-md-4">
-                                <div className="feature">
-                                    <i className="fa fa-code feature-icon"></i>
-                                    <h3 className="feature-title">Clean Code</h3>
-                                    <p className="feature-description">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse euismod, libero vel ullamcorper commodo, dui leo iaculis lorem, ut lobortis velit velit quis ex.</p>
-                                </div>
-                            </div>
-                            <div className="col-md-4">
-                                <div className="feature">
-                                    <i className="fa fa-cogs feature-icon"></i>
-                                    <h3 className="feature-title">Easy to Use</h3>
-                                    <p className="feature-description">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse euismod, libero vel ullamcorper commodo, dui leo iaculis lorem, ut lobortis velit velit quis ex.</p>
-                                </div>
-                            </div>
-                            <div className="col-md-4">
-                                <div className="feature">
-                                    <i className="fa fa-rocket feature-icon"></i>
-                                    <h3 className="feature-title">Fast Performance</h3>
-                                    <p className="feature-description">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse euismod, libero vel ullamcorper commodo, dui leo iaculis lorem, ut lobortis velit velit quis ex.</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
-            </main>
-            <footer className="footer">
-                <div className="container">
-                    <p className="text-center">&copy; 2023 My Website. All rights reserved.</p>
+        <Layout style={{ minHeight: '100vh' }}>
+            {isHide && <Sider collapsed={isClose}>
+                <div onClick={handleSiderOpen} style={{ margin: 20 }} >
+                    {isClose
+                        ? <AiOutlineRight style={{ color: 'white' }} />
+                        : <AiOutlineLeft style={{ color: 'white' }} />
+                    }
                 </div>
-            </footer>
-        </div>
+                <Menu theme="dark" defaultSelectedKeys={['1']} mode="inline" items={items} onSelect={handleMenuSelect} />
+            </Sider>}
+            <Layout className="site-layout">
+                <Header style={{ padding: 0, background: colorBgContainer }} >
+                    <Button onClick={handleSiderHide} style={{ marginBottom: 16 }}>
+                        {isHide ? <AiOutlineMenuUnfold /> : <AiOutlineMenuFold />}
+                    </Button>
+                </Header>
+                <Content style={{ margin: '0 16px' }}>
+                    <Breadcrumb items={[{ title: 'User' }, { title: 'Settings' }]} style={{ margin: '16px 0' }} />
+                    <div style={{ padding: 24, minHeight: 360, background: colorBgContainer }}>
+                        wonderful day
+                    </div>
+                </Content>
+                <Footer style={{ textAlign: 'center' }}>©Created by Jayden</Footer>
+            </Layout>
+        </Layout >
     );
 }
+
